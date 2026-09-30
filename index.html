@@ -150,6 +150,21 @@ h1,h2{text-wrap:balance}
 .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line)}
 .tabs button{border:1px solid var(--line);border-bottom:0;background:var(--bg);border-radius:6px 6px 0 0;padding:9px 18px;margin-bottom:-1px;font-weight:600;color:var(--muted)}
 .tabs button[aria-selected="true"]{background:var(--paper);color:var(--text)}
+.practice{display:grid;grid-template-columns:minmax(0,1fr) 250px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper)}
+.p-main{min-width:0;font-size:16px}
+.p-q{padding:20px 24px}
+.p-side{border-left:1px solid var(--line);background:var(--bg);padding:14px;display:grid;gap:10px;align-content:start}
+.sheet-mini{background:var(--paper);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.sheet-mini h3{margin:0;background:var(--ink-2);color:var(--on-ink);font-size:13px;text-align:center;padding:8px}
+.sheet-mini .row{padding:8px 10px 8px 0}
+.try-h{margin:4px 0 0;font-weight:700;font-size:13px}
+.try{list-style:none;margin:0;padding:0;display:grid;gap:7px;font-size:13px}
+.try li{display:flex;gap:8px;align-items:flex-start;line-height:1.45}
+.try li::before{content:'';flex:none;width:16px;height:16px;box-sizing:border-box;border-radius:50%;border:1.5px solid var(--line-strong);margin-top:1px}
+.try li.done{color:var(--muted)}
+.try li.done::before{content:'✓';background:var(--ok);border-color:var(--ok);color:var(--paper);font-size:11px;line-height:13px;text-align:center;font-weight:700}
+.p-side .btn{justify-self:start;font-size:13px;padding:6px 12px}
+@media (max-width:760px){.practice{grid-template-columns:minmax(0,1fr)}.p-side{border-left:0;border-top:1px solid var(--line)}.p-q{padding:16px}}
 .sample{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:18px 20px;font-size:15px;--qscale:.9}
 .sample.case{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .feat{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin:0}
@@ -380,7 +395,11 @@ UNITS.forEach(u => {
   u.nos = list.map(q => { const no = QUESTIONS.length + 1; QUESTIONS.push({ ...q, no }); return no; });
 });
 const TOTAL = QUESTIONS.length;
-const Q = no => QUESTIONS[no - 1];
+/* 문항형태 단계의 연습용 예제. 번호 0으로 두어 채점과 답안 코드에서 빠진다 */
+const PRACTICE = { no: 0, answer: 2,
+  stem: '알칼로이드(alkaloid)는 분자 안에 질소 원자를 가진 염기성 천연 유기화합물이다. 다음 중 알칼로이드에 해당하는 성분은?',
+  options: ['글루코스(glucose)', '모르핀(morphine)', '셀룰로스(cellulose)', '스테아르산(stearic acid)', '콜레스테롤(cholesterol)'] };
+const Q = no => no === 0 ? PRACTICE : QUESTIONS[no - 1];
 const KEY = 'phg2-mid-cbt-v1';
 const SESS = EXAM.session ? ' · ' + EXAM.session : '';
 
@@ -479,7 +498,7 @@ function validateLogin() {
   return ok;
 }
 
-const STEPS = [['screen', '화면·입력 점검'], ['notice', '유의사항'], ['cheat', '부정행위'], ['secret', '비밀유지'], ['types', '문항형태'], ['howto', '사용법'], ['table', '시간표'], ['wait', '시험 대기']];
+const STEPS = [['screen', '화면·입력 점검'], ['notice', '유의사항'], ['cheat', '부정행위'], ['secret', '비밀유지'], ['types', '문항형태·연습'], ['howto', '사용법'], ['table', '시간표'], ['wait', '시험 대기']];
 const agreeBox = (k, t) => `<label class="agree ${S.agree[k] ? 'ok' : ''}" for="ag-${k}"><input type="checkbox" id="ag-${k}" data-agree="${k}" ${S.agree[k] ? 'checked' : ''}>${t}</label>`;
 const FEATURES = [
   ['글자 크기', '문항과 선택지 글자를 80%, 100%, 125% 가운데 골라 볼 수 있습니다.'],
@@ -533,9 +552,9 @@ const GUIDE = {
   types: () => {
     const cu = UNITS.find(u => u.passage);
     if (!cu) typeTab = 0;
-    return `<div class="tabs" role="tablist">${(cu ? ['단일정답형', '사례형'] : ['단일정답형']).map((t, j) => `<button role="tab" aria-selected="${typeTab === j}" data-act="ttab" data-i="${j}">${t}</button>`).join('')}</div>
+    return `${cu ? `<div class="tabs" role="tablist">${['단일정답형', '사례형'].map((t, j) => `<button role="tab" aria-selected="${typeTab === j}" data-act="ttab" data-i="${j}">${t}</button>`).join('')}</div>` : ''}
     ${typeTab === 0
-      ? `<div class="lead">문항에서 묻는 내용에 맞는 답을 다섯 개의 선택지 가운데 하나 고르는 문항입니다.</div><div class="sample" inert>${qHTML(Q(1), true)}</div>`
+      ? `<div class="lead"><b>단일정답형</b>문항에서 묻는 내용에 맞는 답을 다섯 개의 선택지 가운데 하나 고르는 문항입니다. 아래 예제로 시험 화면의 기능을 직접 써 보세요. 예제는 채점하지 않으며, 시험을 시작하면 지워집니다.</div>${practiceHTML()}`
       : `<div class="lead">하나의 사례를 읽고 그에 딸린 2~3개 문항에 답하는 형식입니다. 사례는 화면 왼쪽, 문항은 오른쪽에 나옵니다.</div><div class="sample case" inert><div class="passage">${cu.passage}</div><div>${qHTML(Q(cu.nos[0]), true)}</div></div>`}`;
   },
   howto: () => `<dl class="feat">${FEATURES.map(([t, d]) => `<div><dt>${t}</dt><dd>${d}</dd></div>`).join('')}</dl>`,
@@ -565,13 +584,40 @@ function guideView() {
     </section></div></div>`;
 }
 
+function tryHTML() {
+  const items = [
+    [!!S.answers[0], '보기를 눌러 답을 고르세요. 오른쪽 답안 표기란의 번호로 골라도 됩니다.'],
+    [(S.struck[0] || []).length > 0, '[오답]을 눌러 아닌 보기에 줄을 그어 보세요.'],
+    [/<mark/.test(S.hl.s0 || ''), '[형광펜 꺼짐]을 눌러 켠 뒤 문장을 드래그해 보세요.'],
+    [!!S.checked[0], '[체크문제]를 눌러 보세요. 답안 표기란 번호 옆에 ✓가 붙습니다.'],
+    [!!(S.memo[0] || '').trim(), '[메모]를 열고 한 줄 적어 보세요.']
+  ];
+  return items.map(([ok, t]) => `<li class="${ok ? 'done' : ''}">${t}</li>`).join('');
+}
+function practiceHTML() {
+  return `<div class="practice ${S.hlOn ? 'hl-on' : ''}">
+    <div class="p-main">
+      <div class="qtool"><div class="plabel">[예제] 연습 문항<span>각 문항에 가장 알맞은 답을 하나 고르시오.</span></div>
+        <button class="hlbtn" data-act="hl" aria-pressed="${S.hlOn}">형광펜 ${S.hlOn ? '켜짐' : '꺼짐'}</button>
+        <button class="hlbtn" data-act="hlclear">형광펜 지우기</button></div>
+      <div class="p-q">${qHTML(PRACTICE)}</div>
+    </div>
+    <aside class="p-side" aria-label="연습 안내">
+      <div class="sheet-mini"><h3>답안 표기란</h3>${rowHTML(PRACTICE)}</div>
+      <p class="try-h">해 볼 것</p>
+      <ul class="try" id="tryList">${tryHTML()}</ul>
+      <button class="btn" data-act="pans">예제 정답 확인</button>
+    </aside>
+  </div>`;
+}
+function refreshTry() { const el = document.getElementById('tryList'); if (el) el.innerHTML = tryHTML(); }
 function qHTML(q, preview) {
   const a = preview ? null : S.answers[q.no];
   const st = preview ? [] : (S.struck[q.no] || []);
   const chk = !preview && !!S.checked[q.no];
   const stem = (!preview && S.hl['s' + q.no]) || q.stem;
   return `<article class="q" id="${preview ? '' : 'q' + q.no}" data-q="${q.no}">
-    <div class="q-line"><span class="qno">${q.no}.</span><div class="stem hl-zone" data-hl="s${q.no}">${stem}</div></div>
+    <div class="q-line"><span class="qno">${q.no || '예제'}.</span><div class="stem hl-zone" data-hl="s${q.no}">${stem}</div></div>
     <div class="q-tools"><button class="tool" data-act="check" aria-pressed="${chk}">체크문제</button><button class="tool" data-act="memo" aria-expanded="${memoOpen === q.no}">메모${!preview && (S.memo[q.no] || '').trim() ? ' ●' : ''}</button></div>
     ${!preview && memoOpen === q.no ? `<div class="memo"><label for="memo-${q.no}">메모 (채점하지 않음)</label><textarea id="memo-${q.no}" data-memo="${q.no}" rows="3">${esc(S.memo[q.no] || '')}</textarea></div>` : ''}
     <ol class="opts">${q.options.map((o, i) => `<li class="opt ${a === i + 1 ? 'sel' : ''} ${st.includes(i) ? 'struck' : ''}">
@@ -590,8 +636,8 @@ function rowHTML(q) {
   const a = S.answers[q.no];
   const cur = PAGES[S.page] && PAGES[S.page].units.some(u => u.nos.includes(q.no));
   const hide = (S.filter === 'checked' && !S.checked[q.no]) || (S.filter === 'open' && a);
-  return `<div class="row ${q.no % 5 === 0 && q.no !== TOTAL ? 'gap' : ''} ${cur ? 'cur' : ''}" data-row="${q.no}" ${hide ? 'hidden' : ''}>
-    <button class="rno" data-act="goto" data-q="${q.no}" aria-label="${q.no}번 문항으로 이동">${pad2(q.no)}${S.checked[q.no] ? '<span class="flag" aria-label="체크한 문항">✓</span>' : ''}</button>
+  return `<div class="row ${q.no && q.no % 5 === 0 && q.no !== TOTAL ? 'gap' : ''} ${cur ? 'cur' : ''}" data-row="${q.no}" ${hide ? 'hidden' : ''}>
+    <button class="rno" data-act="goto" data-q="${q.no}" aria-label="${q.no ? q.no + '번 문항으로 이동' : '예제 문항'}">${q.no ? pad2(q.no) : '예제'}${S.checked[q.no] ? '<span class="flag" aria-label="체크한 문항">✓</span>' : ''}</button>
     ${[1, 2, 3, 4, 5].map(n => `<button class="bub ${a === n ? 'on' : ''}" data-act="pick" data-q="${q.no}" data-o="${n}" aria-pressed="${a === n}" aria-label="${q.no}번 문항 ${n}번 답">${n}</button>`).join('')}
   </div>`;
 }
@@ -686,7 +732,7 @@ function go(i) {
 }
 function choose(no, o) {
   S.answers[no] === o ? delete S.answers[no] : (S.answers[no] = o);
-  save(); updateQ(no); updateRow(no); refreshCounts();
+  save(); updateQ(no); updateRow(no); refreshCounts(); refreshTry();
 }
 function submit(auto) {
   S.stage = 'done'; S.submittedAt = Date.now(); S.auto = auto; submitOpen = false; memoOpen = null;
@@ -759,7 +805,8 @@ document.addEventListener('click', e => {
     case 'gnext': S.guide = Math.min(STEPS.length - 1, S.guide + 1); S.guideMax = Math.max(S.guideMax, S.guide); save(); render(); break;
     case 'clicktest': clicks++; document.getElementById('clickN').textContent = clicks; break;
     case 'ttab': typeTab = +b.dataset.i; render(); break;
-    case 'start': S.stage = 'exam'; S.startAt = Date.now(); S.endAt = S.startAt + EXAM.minutes * 60000; S.page = 0; S.warned = false; save(); render(); break;
+    case 'start': [S.answers, S.struck, S.checked, S.memo].forEach(o => { delete o[0]; }); delete S.hl.s0; S.hlOn = false; memoOpen = null;
+      S.stage = 'exam'; S.startAt = Date.now(); S.endAt = S.startAt + EXAM.minutes * 60000; S.page = 0; S.warned = false; save(); render(); break;
     case 'font': S.scale = +b.dataset.v; save(); render(); break;
     case 'cols': {
       const first = PAGES[S.page].units[0].nos[0];
@@ -769,9 +816,10 @@ document.addEventListener('click', e => {
     case 'strike': {
       const o = +b.dataset.o, list = S.struck[qn] || [];
       S.struck[qn] = list.includes(o) ? list.filter(x => x !== o) : [...list, o];
-      save(); updateQ(qn); break;
+      save(); updateQ(qn); refreshTry(); break;
     }
-    case 'check': S.checked[qn] = !S.checked[qn]; save(); updateQ(qn); updateRow(qn); refreshCounts(); break;
+    case 'check': S.checked[qn] = !S.checked[qn]; save(); updateQ(qn); updateRow(qn); refreshCounts(); refreshTry(); break;
+    case 'pans': toast(`예제 정답: ${PRACTICE.answer}번 ${PRACTICE.options[PRACTICE.answer - 1]}`, 'info'); break;
     case 'memo': {
       memoOpen = memoOpen === qn ? null : qn; updateQ(qn);
       const ta = document.getElementById('memo-' + qn); if (ta) ta.focus();
@@ -794,7 +842,7 @@ document.addEventListener('click', e => {
     case 'sub-ok': submit(false); break;
     case 'hl': S.hlOn = !S.hlOn; save(); render(); break;
     case 'hlclear':
-      document.querySelectorAll('.qarea .hl-zone').forEach(z => delete S.hl[z.dataset.hl]);
+      document.querySelectorAll('.qarea .hl-zone, .practice .hl-zone').forEach(z => delete S.hl[z.dataset.hl]);
       save(); render(); break;
     case 'calc': toggleFloat('calc'); break;
     case 'draw': toggleFloat('draw'); break;
@@ -828,6 +876,7 @@ document.addEventListener('input', e => {
     const n = +t.dataset.memo; S.memo[n] = t.value; save();
     const mb = document.querySelector(`#q${n} [data-act="memo"]`);
     if (mb) mb.textContent = '메모' + (t.value.trim() ? ' ●' : '');
+    refreshTry();
   }
   if (t.closest && t.closest('#loginForm')) validateLogin();
 });
@@ -852,19 +901,19 @@ document.addEventListener('keydown', e => {
 
 /* 형광펜: 한 문단 안에서 드래그한 부분을 <mark>로 감싸고 문항별로 저장 */
 function applyHighlight() {
-  if (!S.hlOn || S.stage !== 'exam') return;
+  if (!S.hlOn || (S.stage !== 'exam' && S.stage !== 'guide')) return;
   const sel = getSelection();
   if (!sel.rangeCount || sel.isCollapsed) return;
   const r = sel.getRangeAt(0);
   const node = r.commonAncestorContainer.nodeType === 1 ? r.commonAncestorContainer : r.commonAncestorContainer.parentElement;
   const zone = node.closest('.hl-zone');
-  if (!zone || !zone.closest('.qarea')) return;
+  if (!zone || !zone.closest('.qarea, .practice')) return;
   if (r.cloneContents().querySelector('p,div,table,tbody,tr,td,th,li,ol,ul')) { toast('형광펜은 한 줄(한 칸) 안에서만 칠할 수 있습니다.', 'info'); return; }
   const mark = document.createElement('mark');
   mark.className = 'hlm';
   try { mark.appendChild(r.extractContents()); r.insertNode(mark); } catch (err) { return; }
   sel.removeAllRanges();
-  S.hl[zone.dataset.hl] = zone.innerHTML; save();
+  S.hl[zone.dataset.hl] = zone.innerHTML; save(); refreshTry();
 }
 document.addEventListener('pointerup', () => setTimeout(applyHighlight, 0));
 document.addEventListener('keyup', e => { if (e.shiftKey) applyHighlight(); });
