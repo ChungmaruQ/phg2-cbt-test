@@ -74,6 +74,8 @@ h1,h2{text-wrap:balance}
 .seat{width:40px;height:40px;flex:none;border-radius:50%;background:var(--seat);color:var(--ink);display:grid;place-items:center;font:600 17px/1 var(--font-num)}
 .ttl{flex:1;text-align:center;font-weight:600;font-size:15px;min-width:200px}
 .clock{display:grid;grid-auto-flow:column;gap:14px;font:500 12px var(--font-num);font-variant-numeric:tabular-nums;opacity:.9}
+.topreset{background:transparent;border:1px solid var(--on-ink);color:var(--on-ink);border-radius:6px;padding:5px 10px;font-size:12px;opacity:.8}
+.topreset:hover{opacity:1}
 .ctrls{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .ctrl-group{display:flex;align-items:center;gap:6px}
 .ctrl-label{font-size:11px;line-height:1.25;opacity:.75;letter-spacing:.04em}
@@ -388,6 +390,10 @@ function fresh() {
     startAt: null, endAt: null, submittedAt: null, auto: false, warned: false };
 }
 let S = fresh();
+if (EXAM.allowReset && /[?&]reset\b/.test(location.search)) {
+  try { localStorage.removeItem(KEY); } catch (e) {}
+  history.replaceState(null, '', location.pathname);
+}
 try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(fresh(), JSON.parse(raw)); } catch (e) {}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
@@ -430,7 +436,8 @@ function render() {
 function topbar(exam) {
   const who = `<div class="who"><span class="seat" aria-label="좌석번호">${seat()}</span><div><small>수험번호 ${esc(S.user.id)}</small><small>성명 ${esc(S.user.name)}</small></div></div>`;
   const ttl = `<div class="ttl">${EXAM.dept} ${EXAM.title}${SESS}</div>`;
-  if (!exam) return `<header class="top">${who}${ttl}<div class="clock"><span>${today()}</span><span data-clock></span><span>시작 ${EXAM.start}</span></div></header>`;
+  const rst = EXAM.allowReset ? '<button class="topreset" data-act="reset" title="검토용: 저장된 진행 상태를 지우고 로그인 화면으로">처음부터</button>' : '';
+  if (!exam) return `<header class="top">${who}${ttl}<div class="clock"><span>${today()}</span><span data-clock></span><span>시작 ${EXAM.start}</span></div>${rst}</header>`;
   const fs = [[0.8, '80%', 12], [1, '100%', 15], [1.25, '125%', 18]].map(([v, l, px]) =>
     `<button data-act="font" data-v="${v}" aria-pressed="${S.scale === v}" aria-label="글자 크기 ${l}"><span style="font-size:${px}px;font-weight:700">가</span><small>${l}</small></button>`).join('');
   const cols = [[1, '1단'], [2, '2단']].map(([v, l]) => `<button data-act="cols" data-v="${v}" aria-pressed="${S.cols === v}">${l}</button>`).join('');
@@ -438,7 +445,7 @@ function topbar(exam) {
     <div class="ctrl-group"><span class="ctrl-label">글자<br>크기</span><div class="seg">${fs}</div></div>
     <div class="ctrl-group"><span class="ctrl-label">화면<br>배치</span><div class="seg">${cols}</div></div>
     <div class="timer" role="timer"><div><span>제한 시간</span><b>${EXAM.minutes}분</b></div><div><span>남은 시간</span><b id="tLeft">--</b></div></div>
-  </div></header>`;
+  ${rst}</div></header>`;
 }
 
 function loginView() {
@@ -460,7 +467,7 @@ function loginView() {
     </form>
   </div>
   <p class="demo">수험번호에는 학번을, 시험인증번호에는 감독관이 알려 주는 숫자 4자리를 입력하세요. 입력한 정보는 이 브라우저 밖으로 나가지 않습니다.</p>
-  <div class="card-foot"><button class="btn-primary big" form="loginForm" id="loginBtn" type="submit" disabled>로그인</button></div>
+  <div class="card-foot">${EXAM.allowReset ? '<button class="btn" data-act="reset">처음부터</button>' : ''}<button class="btn-primary big" form="loginForm" id="loginBtn" type="submit" disabled>로그인</button></div>
   </section></div>`;
 }
 function validateLogin() {
@@ -806,8 +813,8 @@ document.addEventListener('click', e => {
     }
     case 'reset':
       if (!resetArm) {
-        resetArm = true; b.textContent = '한 번 더 누르면 처음으로 돌아갑니다';
-        setTimeout(() => { resetArm = false; if (b.isConnected) b.textContent = '처음부터 다시'; }, 4000);
+        resetArm = true; const label = b.textContent; b.textContent = '한 번 더 누르면 초기화';
+        setTimeout(() => { resetArm = false; if (b.isConnected) b.textContent = label; }, 4000);
       } else {
         resetArm = false; S = fresh(); clicks = 0; typeTab = 0; ctx.clearRect(0, 0, pad.width, pad.height); save(); render();
       }
