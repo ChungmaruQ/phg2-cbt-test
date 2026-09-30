@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>생약학2 CBT 채점</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* 배치: 채점 도구 — 왼쪽 입력(정답·답안 코드) / 오른쪽 결과(요약 → 학생별 → 문항 분석) */
+:root{
+  --ink:#1d2842; --ink-2:#2b3a5e; --on-ink:#eef2fa;
+  --bg:#eceff4; --paper:#ffffff; --line:#d6dbe4; --line-strong:#b6bfce;
+  --text:#1a2130; --muted:#5a6477;
+  --accent:#2b58c9; --accent-soft:#e2e9fa; --accent-ink:#1c3c93; --on-accent:#ffffff;
+  --ok:#1d8048; --ok-soft:#e1f3e8; --danger:#c0352b; --danger-soft:#fbe4e2; --warn:#a86a12; --warn-soft:#fcefd8;
+  --font-ui:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --font-num:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --ink:#0e1424; --ink-2:#1c2742; --on-ink:#e5eaf4;
+  --bg:#111621; --paper:#1a2030; --line:#2b3346; --line-strong:#3e485f;
+  --text:#e3e7ef; --muted:#9aa4b8;
+  --accent:#86a8ff; --accent-soft:#223157; --accent-ink:#c3d3ff; --on-accent:#0d1630;
+  --ok:#62d392; --ok-soft:#173424; --danger:#ff7d71; --danger-soft:#3f1f1c; --warn:#e3aa4c; --warn-soft:#3a2d15;
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 var(--font-ui)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header{background:var(--ink);color:var(--on-ink);padding:14px 16px}
+header h1{margin:0;font-size:18px}
+header p{margin:2px 0 0;font-size:12px;opacity:.8}
+main{display:grid;grid-template-columns:minmax(280px,380px) minmax(0,1fr);gap:16px;padding:16px;max-width:1400px;margin:0 auto}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:12px;align-content:start;min-width:0}
+.panel h2{margin:0;font-size:15px}
+label{font-weight:600;font-size:13px;display:grid;gap:6px}
+label small{font-weight:400;color:var(--muted)}
+input,textarea{width:100%;border:1px solid var(--line-strong);background:var(--paper);color:var(--text);border-radius:6px;padding:8px 10px;font:13px/1.5 var(--font-num)}
+textarea{resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{background:var(--paper);border:1px solid var(--line-strong);border-radius:6px;padding:8px 14px;font-weight:500}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.btn.ghost{border-color:transparent;color:var(--muted);padding-inline:6px}
+.keyinfo{font-size:12px;color:var(--muted);margin:0}
+.keyinfo.bad{color:var(--danger)}
+.note{font-size:12px;color:var(--muted);background:var(--bg);border-radius:8px;padding:10px 12px;margin:0;line-height:1.6}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.tile{background:var(--bg);border-radius:8px;padding:10px 12px}
+.tile span{font-size:12px;color:var(--muted)}
+.tile b{display:block;font:600 22px/1.2 var(--font-num)}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+thead th{background:var(--ink-2);color:var(--on-ink);font-size:12px;font-weight:600;position:sticky;top:0}
+tbody tr:last-child td{border-bottom:0}
+td.l{text-align:left}
+.ox{font-family:var(--font-num);letter-spacing:1px;text-align:left}
+.ox .o{color:var(--ok)} .ox .x{color:var(--danger)} .ox .n{color:var(--muted)}
+.pill{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--danger-soft);color:var(--danger)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.dist{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;min-width:220px}
+.dist div{display:grid;gap:2px;font:11px var(--font-num);color:var(--muted)}
+.dist i{display:block;height:8px;border-radius:2px;background:var(--line-strong)}
+.dist .k i{background:var(--ok)}
+.dist .k{color:var(--ok);font-weight:600}
+.bar{height:8px;border-radius:4px;background:var(--bg);overflow:hidden;min-width:80px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.empty{color:var(--muted);text-align:center;padding:30px 10px;line-height:1.7}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink-2);color:var(--on-ink);padding:9px 18px;border-radius:8px;font-weight:600}
+@media (max-width:860px){main{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>생약학2 CBT 채점</h1>
+  <p>정답과 답안은 이 브라우저 안에서만 처리됩니다. 어디로도 전송되지 않습니다.</p>
+</header>
+<main>
+  <section class="panel" aria-label="입력">
+    <h2>1. 정답</h2>
+    <label for="exam">시험 코드<input id="exam" value="PHG2-MID" autocomplete="off"></label>
+    <label for="key">정답 <small>1~5 숫자를 문항 순서대로. 쉼표나 공백은 있어도 됩니다.</small>
+      <input id="key" placeholder="예: 3,4,1,3,1 …" autocomplete="off" spellcheck="false"></label>
+    <p class="keyinfo" id="keyinfo">정답을 입력하세요.</p>
+    <label for="remember" style="display:flex;align-items:center;gap:8px;font-weight:500"><input type="checkbox" id="remember" style="width:auto"> 이 브라우저에 정답 기억하기</label>
+    <h2>2. 답안 코드</h2>
+    <label for="codes">학생 답안 코드 <small>한 줄에 한 명씩 붙여 넣으세요.</small>
+      <textarea id="codes" rows="10" spellcheck="false" placeholder="PHG2-MID|2021123401|홍길동|2026-09-30T01:40:12|1234512345|0abc123"></textarea></label>
+    <div class="row">
+      <button class="btn primary" id="run">채점</button>
+      <button class="btn" id="copy">결과 복사 (엑셀용)</button>
+      <button class="btn ghost" id="sample">예시 불러오기</button>
+      <button class="btn ghost" id="clear">모두 지우기</button>
+    </div>
+    <p class="note">확인코드는 시험 페이지가 답안 코드를 만들 때 함께 계산한 값입니다. 답안을 손으로 고치면 불일치로 표시됩니다. 페이지 소스를 읽으면 다시 계산할 수 있으므로 위조를 완전히 막지는 못합니다.</p>
+  </section>
+
+  <section class="panel" aria-label="결과" id="out">
+    <div class="empty">정답과 답안 코드를 넣고 [채점]을 누르면<br>요약, 학생별 점수, 문항별 정답률이 여기에 나옵니다.<br>처음이라면 [예시 불러오기]로 화면을 확인해 보세요.</div>
+  </section>
+</main>
+<script>
+const LS = 'phg2-grade-v1';
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* 시험 페이지와 같은 해시 */
+function fnv(str) { let h = 0x811c9dc5; for (const ch of str) { h ^= ch.codePointAt(0); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(36).padStart(7, '0'); }
+const parseKey = v => (v.match(/[1-5]/g) || []).map(Number);
+let lastRows = [], lastKey = [];
+
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(LS) || '{}');
+    if (s.key) { $('key').value = s.key; $('remember').checked = true; }
+    if (s.exam) $('exam').value = s.exam;
+  } catch (e) {}
+}
+function persist() {
+  try {
+    if ($('remember').checked) localStorage.setItem(LS, JSON.stringify({ key: $('key').value, exam: $('exam').value }));
+    else localStorage.removeItem(LS);
+  } catch (e) {}
+}
+function keyInfo() {
+  const k = parseKey($('key').value), bad = /[^1-5,\s]/.test($('key').value);
+  const el = $('keyinfo');
+  el.textContent = k.length ? `${k.length}문항 정답 인식${bad ? ' · 1~5와 구분 기호 외의 글자는 무시했습니다' : ''}` : '정답을 입력하세요.';
+  el.classList.toggle('bad', bad);
+}
+
+function grade() {
+  const key = parseKey($('key').value), exam = $('exam').value.trim();
+  if (!key.length) { toast('정답을 먼저 입력하세요.'); return; }
+  const lines = $('codes').value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  const seen = {};
+  const rows = lines.map((line, i) => {
+    const p = line.split('|');
+    const r = { line: i + 1, raw: line, id: p[1] || '', name: p[2] || '', time: p[3] || '', ans: [], status: 'ok', msg: '정상' };
+    if (p.length !== 6) { r.status = 'bad'; r.msg = '형식 오류'; return r; }
+    r.ans = [...p[4]].map(Number);
+    if (fnv(p.slice(0, 5).join('|')) !== p[5]) { r.status = 'bad'; r.msg = '확인코드 불일치'; }
+    else if (p[0] !== exam) { r.status = 'warn'; r.msg = '시험 코드 다름'; }
+    else if (r.ans.length !== key.length) { r.status = 'warn'; r.msg = `문항 수 다름(${r.ans.length})`; }
+    r.correct = key.filter((k, j) => r.ans[j] === k).length;
+    r.score = Math.round(r.correct / key.length * 1000) / 10;
+    (seen[r.id] = seen[r.id] || []).push(r);
+    return r;
+  });
+  Object.values(seen).forEach(list => { if (list.length > 1) list.forEach(r => { r.dup = true; }); });
+  lastRows = rows; lastKey = key;
+  render(rows, key);
+}
+
+function render(rows, key) {
+  const valid = rows.filter(r => r.status === 'ok' && !r.dup);
+  const scores = valid.map(r => r.score);
+  const avg = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : '–';
+  const tiles = [['답안 코드', rows.length], ['채점 인정', valid.length], ['평균', avg], ['최고', scores.length ? Math.max(...scores) : '–'], ['최저', scores.length ? Math.min(...scores) : '–'], ['확인 필요', rows.length - valid.length]];
+  const people = rows.map(r => {
+    const ox = key.map((k, j) => { const a = r.ans[j]; return a === k ? '<span class="o">O</span>' : a ? '<span class="x">X</span>' : '<span class="n">·</span>'; }).join('');
+    const pill = r.dup ? '<span class="pill warn">중복 제출</span>' : `<span class="pill ${r.status}">${r.msg}</span>`;
+    return `<tr><td>${r.line}</td><td>${esc(r.id)}</td><td class="l">${esc(r.name)}</td><td>${esc(r.time.replace('T', ' '))}</td><td>${r.correct ?? '–'} / ${key.length}</td><td><b>${r.score ?? '–'}</b></td><td>${pill}</td><td class="ox">${r.ans.length ? ox : ''}</td></tr>`;
+  }).join('');
+  const items = key.map((k, j) => {
+    const cnt = [0, 0, 0, 0, 0, 0];
+    valid.forEach(r => { cnt[r.ans[j] || 0]++; });
+    const n = valid.length || 1, rate = Math.round(cnt[k] / n * 100);
+    const dist = [1, 2, 3, 4, 5].map(c => `<div class="${c === k ? 'k' : ''}"><i style="width:${Math.max(4, Math.round(cnt[c] / n * 100))}%"></i>${c}: ${cnt[c]}</div>`).join('');
+    return `<tr><td>${j + 1}</td><td>${k}</td><td>${valid.length ? rate + '%' : '–'}</td><td><div class="bar"><i style="width:${rate}%"></i></div></td><td><div class="dist">${dist}</div></td><td>${cnt[0]}</td></tr>`;
+  }).join('');
+  $('out').innerHTML = `
+    <h2>요약</h2>
+    <div class="tiles">${tiles.map(([t, v]) => `<div class="tile"><span>${t}</span><b>${v}</b></div>`).join('')}</div>
+    <p class="note">평균·최고·최저와 문항 분석은 "정상"이면서 중복이 아닌 답안만으로 계산합니다. 점수는 100점 만점, 문항별 균등 배점입니다.</p>
+    <h2>학생별 결과</h2>
+    <div class="tblwrap"><table><thead><tr><th>줄</th><th>수험번호</th><th>성명</th><th>제출 시각(UTC)</th><th>정답 수</th><th>점수</th><th>상태</th><th>문항별 (O 정답 · X 오답 · 미응답)</th></tr></thead><tbody>${people || '<tr><td colspan="8">붙여 넣은 답안 코드가 없습니다.</td></tr>'}</tbody></table></div>
+    <h2>문항 분석</h2>
+    <div class="tblwrap"><table><thead><tr><th>문항</th><th>정답</th><th>정답률</th><th></th><th>선택 분포 (초록 = 정답)</th><th>미응답</th></tr></thead><tbody>${items}</tbody></table></div>`;
+}
+
+function copyResult() {
+  if (!lastRows.length) { toast('먼저 채점하세요.'); return; }
+  const head = ['수험번호', '성명', '제출시각(UTC)', '정답수', '점수', '상태', ...lastKey.map((_, j) => 'Q' + (j + 1))].join('\t');
+  const body = lastRows.map(r => [r.id, r.name, r.time, r.correct ?? '', r.score ?? '', r.dup ? '중복 제출' : r.msg, ...lastKey.map((_, j) => r.ans[j] || '')].join('\t')).join('\n');
+  const text = head + '\n' + body;
+  navigator.clipboard.writeText(text).then(() => toast('결과를 복사했습니다. 엑셀에 붙여 넣으세요.'), () => toast('복사가 막혀 있습니다. 브라우저 권한을 확인하세요.'));
+}
+
+function sample() {
+  const key = '1234512345';
+  const mk = (id, name, ans) => { const body = ['PHG2-MID', id, name, '2026-09-30T01:3' + id.slice(-1) + ':00', ans].join('|'); return body + '|' + fnv(body); };
+  $('exam').value = 'PHG2-MID';
+  $('key').value = key.split('').join(',');
+  $('remember').checked = false;
+  $('codes').value = [
+    mk('20240001', '예시학생가', '1234512345'),
+    mk('20240002', '예시학생나', '1234500345'),
+    mk('20240003', '예시학생다', '2234512315'),
+    mk('20240003', '예시학생다', '2234512315'),
+    'PHG2-MID|20240004|예시학생라|2026-09-30T01:39:00|1234512345|0000000'
+  ].join('\n');
+  keyInfo(); persist(); grade();
+  toast('예시 데이터입니다. 실제 정답이 아닙니다.');
+}
+
+function toast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+}
+
+$('key').addEventListener('input', () => { keyInfo(); persist(); });
+$('exam').addEventListener('input', persist);
+$('remember').addEventListener('change', persist);
+$('run').addEventListener('click', grade);
+$('copy').addEventListener('click', copyResult);
+$('sample').addEventListener('click', sample);
+$('clear').addEventListener('click', () => { $('key').value = ''; $('codes').value = ''; $('remember').checked = false; persist(); keyInfo(); lastRows = []; $('out').innerHTML = '<div class="empty">모두 지웠습니다.</div>'; });
+load(); keyInfo();
+</script>
+</body>
+</html>
