@@ -150,21 +150,32 @@ h1,h2{text-wrap:balance}
 .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line)}
 .tabs button{border:1px solid var(--line);border-bottom:0;background:var(--bg);border-radius:6px 6px 0 0;padding:9px 18px;margin-bottom:-1px;font-weight:600;color:var(--muted)}
 .tabs button[aria-selected="true"]{background:var(--paper);color:var(--text)}
-.practice{display:grid;grid-template-columns:minmax(0,1fr) 250px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper)}
-.p-main{min-width:0;font-size:16px}
+.practice{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper)}
+.p-top{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;background:var(--ink);color:var(--on-ink);padding:8px 14px}
+.p-tag{font-weight:700;font-size:13px;margin-right:auto}
+.timer .pt{font:600 13px/1 var(--font-ui);background:var(--on-ink);color:var(--ink);padding:3px 7px;border-radius:5px;margin-left:-7px}
+.p-body{display:grid;grid-template-columns:minmax(0,1fr) 250px}
+.practice .qpage{overflow:visible}
+.practice .qcol{overflow:visible}
+.practice .bottom{border-top:1px solid var(--line)}
+.try-wrap{display:grid;gap:8px}
+.p-main{min-width:0;font-size:calc(16px * var(--qscale,1))}
 .p-q{padding:20px 24px}
 .p-side{border-left:1px solid var(--line);background:var(--bg);padding:14px;display:grid;gap:10px;align-content:start}
 .sheet-mini{background:var(--paper);border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .sheet-mini h3{margin:0;background:var(--ink-2);color:var(--on-ink);font-size:13px;text-align:center;padding:8px}
 .sheet-mini .row{padding:8px 10px 8px 0}
-.try-h{margin:4px 0 0;font-weight:700;font-size:13px}
-.try{list-style:none;margin:0;padding:0;display:grid;gap:7px;font-size:13px}
-.try li{display:flex;gap:8px;align-items:flex-start;line-height:1.45}
+.try-h{margin:6px 0 0;font-weight:700;font-size:14px}
+.try-h span{font:600 13px var(--font-num);color:var(--ok);margin-left:6px}
+.try{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px 16px;font-size:13px}
+.try li{box-sizing:border-box;min-width:0;display:flex;gap:8px;align-items:flex-start;line-height:1.5;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.try b{margin-right:4px}
+.try li.done{border-color:var(--ok)}
 .try li::before{content:'';flex:none;width:16px;height:16px;box-sizing:border-box;border-radius:50%;border:1.5px solid var(--line-strong);margin-top:1px}
 .try li.done{color:var(--muted)}
 .try li.done::before{content:'✓';background:var(--ok);border-color:var(--ok);color:var(--paper);font-size:11px;line-height:13px;text-align:center;font-weight:700}
 .p-side .btn{justify-self:start;font-size:13px;padding:6px 12px}
-@media (max-width:760px){.practice{grid-template-columns:minmax(0,1fr)}.p-side{border-left:0;border-top:1px solid var(--line)}.p-q{padding:16px}}
+@media (max-width:760px){.p-body,.practice .qpage.two{grid-template-columns:minmax(0,1fr)}.p-side{border-left:0;border-top:1px solid var(--line)}}
 .sample{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:18px 20px;font-size:15px;--qscale:.9}
 .sample.case{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .feat{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin:0}
@@ -232,6 +243,10 @@ mark.hlm{background:var(--hl);color:inherit;border-radius:2px;padding:0 1px}
 .row{display:grid;grid-template-columns:50px repeat(5,1fr);align-items:center;padding:4px 12px 4px 0;gap:2px}
 .row.gap{border-bottom:1px dashed var(--line-strong);padding-bottom:8px;margin-bottom:4px}
 .row.cur{background:var(--accent-soft)}
+.row.chk{background:var(--check-soft)}
+.row.chk .rno{background:var(--check);color:var(--paper)}
+.row.chk .flag{color:inherit}
+.q.is-chk{border-left:4px solid var(--check);padding-left:14px;margin-left:-18px}
 .rno{border:0;background:var(--bg);font:600 12px var(--font-num);height:28px;border-radius:0 5px 5px 0;display:flex;align-items:center;justify-content:center;gap:3px}
 .flag{color:var(--check);font-size:11px}
 .bub{justify-self:center;width:26px;height:26px;padding:0;border-radius:50%;border:1.5px solid var(--accent);background:transparent;color:var(--accent);font:600 11px/1 var(--font-num)}
@@ -395,17 +410,23 @@ UNITS.forEach(u => {
   u.nos = list.map(q => { const no = QUESTIONS.length + 1; QUESTIONS.push({ ...q, no }); return no; });
 });
 const TOTAL = QUESTIONS.length;
-/* 문항형태 단계의 연습용 예제. 번호 0으로 두어 채점과 답안 코드에서 빠진다 */
-const PRACTICE = { no: 0, answer: 2,
-  stem: '알칼로이드(alkaloid)는 분자 안에 질소 원자를 가진 염기성 천연 유기화합물이다. 다음 중 알칼로이드에 해당하는 성분은?',
-  options: ['글루코스(glucose)', '모르핀(morphine)', '셀룰로스(cellulose)', '스테아르산(stearic acid)', '콜레스테롤(cholesterol)'] };
-const Q = no => no === 0 ? PRACTICE : QUESTIONS[no - 1];
+/* 문항형태 단계의 연습용 예제. 번호를 0 이하로 두어 채점과 답안 코드에서 빠진다 */
+const PRACTICE = [
+  { no: 0, label: '예제 1', answer: 2,
+    stem: '알칼로이드(alkaloid)는 분자 안에 질소 원자를 가진 염기성 천연 유기화합물이다. 다음 중 알칼로이드에 해당하는 성분은?',
+    options: ['글루코스(glucose)', '모르핀(morphine)', '셀룰로스(cellulose)', '스테아르산(stearic acid)', '콜레스테롤(cholesterol)'] },
+  { no: -1, label: '예제 2', answer: 4,
+    stem: '생약의 약용 부위를 나타내는 라틴어 가운데 "뿌리"를 뜻하는 것은?',
+    options: ['Folium', 'Flos', 'Fructus', 'Radix', 'Semen'] }
+];
+const PNOS = PRACTICE.map(p => p.no);
+const Q = no => no <= 0 ? PRACTICE[-no] : QUESTIONS[no - 1];
 const KEY = 'phg2-mid-cbt-v1';
 const SESS = EXAM.session ? ' · ' + EXAM.session : '';
 
 function fresh() {
   return { stage: 'login', user: { id: '', name: '' }, guide: 0, guideMax: 0, agree: { screen: false, secret: false },
-    answers: {}, struck: {}, checked: {}, memo: {}, hl: {}, page: 0, scale: 1, cols: 1, filter: 'all', hlOn: false,
+    answers: {}, struck: {}, checked: {}, memo: {}, hl: {}, ptry: {}, page: 0, scale: 1, cols: 1, filter: 'all', hlOn: false,
     startAt: null, endAt: null, submittedAt: null, auto: false, warned: false };
 }
 let S = fresh();
@@ -416,7 +437,7 @@ if (EXAM.allowReset && /[?&]reset\b/.test(location.search)) {
 try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(fresh(), JSON.parse(raw)); } catch (e) {}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
-let PAGES = [], memoOpen = null, typeTab = 0, clicks = 0, submitOpen = false, resetArm = false;
+let PAGES = [], ppage = 0, pfilter = 'all', pSubmitOpen = false, memoOpen = null, typeTab = 0, clicks = 0, submitOpen = false, resetArm = false;
 const app = document.getElementById('app');
 const pad2 = n => String(n).padStart(2, '0');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -447,22 +468,24 @@ function render() {
     S.page = Math.max(0, Math.min(S.page, PAGES.length - 1));
     app.innerHTML = examView();
   } else app.innerHTML = doneView();
-  if (S.stage !== 'exam') { document.getElementById('calc').hidden = true; document.getElementById('draw').hidden = true; }
+  if (S.stage !== 'exam' && S.stage !== 'guide') { document.getElementById('calc').hidden = true; document.getElementById('draw').hidden = true; }
   modalRender();
   tick();
 }
 
+function segsHTML(colsAct) {
+  const fs = [[0.8, '80%', 12], [1, '100%', 15], [1.25, '125%', 18]].map(([v, l, px]) =>
+    `<button data-act="font" data-v="${v}" aria-pressed="${S.scale === v}" aria-label="글자 크기 ${l}"><span style="font-size:${px}px;font-weight:700">가</span><small>${l}</small></button>`).join('');
+  const cols = [[1, '1단'], [2, '2단']].map(([v, l]) => `<button data-act="${colsAct}" data-v="${v}" aria-pressed="${S.cols === v}">${l}</button>`).join('');
+  return `<div class="ctrl-group"><span class="ctrl-label">글자<br>크기</span><div class="seg">${fs}</div></div>
+    <div class="ctrl-group"><span class="ctrl-label">화면<br>배치</span><div class="seg">${cols}</div></div>`;
+}
 function topbar(exam) {
   const who = `<div class="who"><span class="seat" aria-label="좌석번호">${seat()}</span><div><small>수험번호 ${esc(S.user.id)}</small><small>성명 ${esc(S.user.name)}</small></div></div>`;
   const ttl = `<div class="ttl">${EXAM.dept} ${EXAM.title}${SESS}</div>`;
   const rst = EXAM.allowReset ? '<button class="topreset" data-act="reset" title="검토용: 저장된 진행 상태를 지우고 로그인 화면으로">처음부터</button>' : '';
   if (!exam) return `<header class="top">${who}${ttl}<div class="clock"><span>${today()}</span><span data-clock></span><span>시작 ${EXAM.start}</span></div>${rst}</header>`;
-  const fs = [[0.8, '80%', 12], [1, '100%', 15], [1.25, '125%', 18]].map(([v, l, px]) =>
-    `<button data-act="font" data-v="${v}" aria-pressed="${S.scale === v}" aria-label="글자 크기 ${l}"><span style="font-size:${px}px;font-weight:700">가</span><small>${l}</small></button>`).join('');
-  const cols = [[1, '1단'], [2, '2단']].map(([v, l]) => `<button data-act="cols" data-v="${v}" aria-pressed="${S.cols === v}">${l}</button>`).join('');
-  return `<header class="top">${who}${ttl}<div class="ctrls">
-    <div class="ctrl-group"><span class="ctrl-label">글자<br>크기</span><div class="seg">${fs}</div></div>
-    <div class="ctrl-group"><span class="ctrl-label">화면<br>배치</span><div class="seg">${cols}</div></div>
+  return `<header class="top">${who}${ttl}<div class="ctrls">${segsHTML('cols')}
     <div class="timer" role="timer"><div><span>제한 시간</span><b>${EXAM.minutes}분</b></div><div><span>남은 시간</span><b id="tLeft">--</b></div></div>
   ${rst}</div></header>`;
 }
@@ -584,41 +607,60 @@ function guideView() {
     </section></div></div>`;
 }
 
-function tryHTML() {
-  const items = [
-    [!!S.answers[0], '보기를 눌러 답을 고르세요. 오른쪽 답안 표기란의 번호로 골라도 됩니다.'],
-    [(S.struck[0] || []).length > 0, '[오답]을 눌러 아닌 보기에 줄을 그어 보세요.'],
-    [/<mark/.test(S.hl.s0 || ''), '[형광펜 꺼짐]을 눌러 켠 뒤 문장을 드래그해 보세요.'],
-    [!!S.checked[0], '[체크문제]를 눌러 보세요. 답안 표기란 번호 옆에 ✓가 붙습니다.'],
-    [!!(S.memo[0] || '').trim(), '[메모]를 열고 한 줄 적어 보세요.']
-  ];
-  return items.map(([ok, t]) => `<li class="${ok ? 'done' : ''}">${t}</li>`).join('');
+const TRY = [
+  ['답 고르기', '보기를 누르거나 오른쪽 답안 표기란의 번호를 누릅니다.', () => PNOS.some(n => S.answers[n])],
+  ['오답 표시', '보기 오른쪽 [오답]을 눌러 아닌 보기에 줄을 긋습니다.', () => PNOS.some(n => (S.struck[n] || []).length)],
+  ['형광펜', '[형광펜 꺼짐]을 눌러 켠 뒤 문장을 드래그합니다.', () => PNOS.some(n => /<mark/.test(S.hl['s' + n] || ''))],
+  ['체크문제', '[체크문제]를 누르면 문항 왼쪽과 답안 표기란 번호가 주황색으로 바뀝니다.', () => PNOS.some(n => S.checked[n])],
+  ['모아 보기', '아래 [체크 문제]나 [안 푼 문제]를 누르면 답안 표기란에 해당 문항만 남습니다.', () => S.ptry.filter],
+  ['메모', '[메모]를 열고 한 줄 적습니다. 채점하지 않습니다.', () => PNOS.some(n => (S.memo[n] || '').trim())],
+  ['글자 크기', '위쪽 [가] 단추로 80·100·125%를 바꿉니다.', () => S.ptry.font],
+  ['화면 배치', '[2단]을 누르면 두 문항이 나란히 보입니다.', () => S.ptry.cols],
+  ['문항 이동', '1단에서 아래 [다음 ▶]을 누르거나 답안 표기란 번호를 누릅니다.', () => S.ptry.nav],
+  ['계산기', '아래 [계산기]를 엽니다. 제목 줄을 끌어 옮길 수 있습니다.', () => S.ptry.calc],
+  ['그림판', '아래 [그림판]을 열어 펜으로 써 봅니다.', () => S.ptry.draw],
+  ['답안 제출', '[답안 제출]로 확인 창을 띄워 봅니다. 연습이라 실제로 제출되지는 않습니다.', () => S.ptry.submit]
+];
+const tryDone = () => TRY.filter(t => t[2]()).length;
+function tryHTML() { return TRY.map(([t, d, ok]) => `<li class="${ok() ? 'done' : ''}"><span><b>${t}</b> ${d}</span></li>`).join(''); }
+function refreshTry() {
+  const el = document.getElementById('tryList'); if (el) el.innerHTML = tryHTML();
+  const n = document.getElementById('tryN'); if (n) n.textContent = `${tryDone()} / ${TRY.length}`;
 }
+function markTry(k) { if (S.stage === 'guide' && !S.ptry[k]) { S.ptry[k] = true; save(); refreshTry(); } }
+const pcounts = () => ({ chk: PNOS.filter(n => S.checked[n]).length, open: PNOS.filter(n => !S.answers[n]).length });
 function practiceHTML() {
-  return `<div class="practice ${S.hlOn ? 'hl-on' : ''}">
-    <div class="p-main">
-      <div class="qtool"><div class="plabel">[예제] 연습 문항<span>각 문항에 가장 알맞은 답을 하나 고르시오.</span></div>
-        <button class="hlbtn" data-act="hl" aria-pressed="${S.hlOn}">형광펜 ${S.hlOn ? '켜짐' : '꺼짐'}</button>
-        <button class="hlbtn" data-act="hlclear">형광펜 지우기</button></div>
-      <div class="p-q">${qHTML(PRACTICE)}</div>
+  const two = S.cols === 2, shown = two ? PRACTICE : [PRACTICE[ppage]], c = pcounts();
+  const pf = (f, l, n) => `<button class="fbtn" data-act="pfilter" data-f="${f}" aria-pressed="${pfilter === f}">${l} (<span id="pc-${f}">${n}</span>)</button>`;
+  return `<div class="practice ${S.hlOn ? 'hl-on' : ''}" style="--qscale:${S.scale}">
+    <div class="p-top"><span class="p-tag">연습 화면 · 시험 화면과 같은 기능</span><div class="ctrls">${segsHTML('pcols')}
+      <div class="timer"><div><span>제한 시간</span><b>${EXAM.minutes}분</b></div><div><span>남은 시간</span><b class="pt">연습 중</b></div></div></div></div>
+    <div class="p-body">
+      <div class="p-main">
+        <div class="qtool"><div class="plabel">[${two ? '예제 1-2' : PRACTICE[ppage].label}] 연습 문항<span>각 문항에 가장 알맞은 답을 하나 고르시오.</span></div>
+          <button class="hlbtn" data-act="hl" aria-pressed="${S.hlOn}">형광펜 ${S.hlOn ? '켜짐' : '꺼짐'}</button>
+          <button class="hlbtn" data-act="hlclear">형광펜 지우기</button></div>
+        <div class="qpage ${two ? 'two' : ''}">${shown.map(q => `<div class="qcol">${qHTML(q)}</div>`).join('')}</div>
+      </div>
+      <aside class="p-side" aria-label="연습용 답안 표기란"><div class="sheet-mini"><h3>답안 표기란</h3>${PRACTICE.map(rowHTML).join('')}</div>
+        <button class="btn" data-act="pans">예제 정답 확인</button></aside>
     </div>
-    <aside class="p-side" aria-label="연습 안내">
-      <div class="sheet-mini"><h3>답안 표기란</h3>${rowHTML(PRACTICE)}</div>
-      <p class="try-h">해 볼 것</p>
-      <ul class="try" id="tryList">${tryHTML()}</ul>
-      <button class="btn" data-act="pans">예제 정답 확인</button>
-    </aside>
-  </div>`;
+    <div class="bottom">
+      <div class="grp"><button class="fbtn" data-act="calc">계산기</button><button class="fbtn" data-act="draw">그림판</button></div>
+      <div class="grp nav"><button class="fbtn" data-act="pprev" ${two || ppage === 0 ? 'disabled' : ''}>◀ 이전</button><span class="pgno">${two ? '1 / 1' : `${ppage + 1} / ${PRACTICE.length}`}</span><button class="fbtn" data-act="pnext" ${two || ppage === PRACTICE.length - 1 ? 'disabled' : ''}>다음 ▶</button></div>
+      <div class="grp">${pf('all', '전체 문제', PRACTICE.length)}${pf('checked', '체크 문제', c.chk)}${pf('open', '안 푼 문제', c.open)}<button class="fbtn submit" data-act="psubmit">답안 제출</button></div>
+    </div>
+  </div>
+  <div class="try-wrap"><p class="try-h">해 볼 것 <span id="tryN">${tryDone()} / ${TRY.length}</span></p><ul class="try" id="tryList">${tryHTML()}</ul></div>`;
 }
-function refreshTry() { const el = document.getElementById('tryList'); if (el) el.innerHTML = tryHTML(); }
 function qHTML(q, preview) {
   const a = preview ? null : S.answers[q.no];
   const st = preview ? [] : (S.struck[q.no] || []);
   const chk = !preview && !!S.checked[q.no];
   const stem = (!preview && S.hl['s' + q.no]) || q.stem;
-  return `<article class="q" id="${preview ? '' : 'q' + q.no}" data-q="${q.no}">
-    <div class="q-line"><span class="qno">${q.no || '예제'}.</span><div class="stem hl-zone" data-hl="s${q.no}">${stem}</div></div>
-    <div class="q-tools"><button class="tool" data-act="check" aria-pressed="${chk}">체크문제</button><button class="tool" data-act="memo" aria-expanded="${memoOpen === q.no}">메모${!preview && (S.memo[q.no] || '').trim() ? ' ●' : ''}</button></div>
+  return `<article class="q ${chk ? 'is-chk' : ''}" id="${preview ? '' : 'q' + q.no}" data-q="${q.no}">
+    <div class="q-line"><span class="qno">${q.label || q.no}.</span><div class="stem hl-zone" data-hl="s${q.no}">${stem}</div></div>
+    <div class="q-tools"><button class="tool" data-act="check" aria-pressed="${chk}">${chk ? '✓ 체크됨' : '체크문제'}</button><button class="tool" data-act="memo" aria-expanded="${memoOpen === q.no}">메모${!preview && (S.memo[q.no] || '').trim() ? ' ●' : ''}</button></div>
     ${!preview && memoOpen === q.no ? `<div class="memo"><label for="memo-${q.no}">메모 (채점하지 않음)</label><textarea id="memo-${q.no}" data-memo="${q.no}" rows="3">${esc(S.memo[q.no] || '')}</textarea></div>` : ''}
     <ol class="opts">${q.options.map((o, i) => `<li class="opt ${a === i + 1 ? 'sel' : ''} ${st.includes(i) ? 'struck' : ''}">
       <button class="pick" data-act="pick" data-o="${i + 1}" aria-pressed="${a === i + 1}"><span class="cn">${i + 1}</span><span class="ot">${o}</span></button>
@@ -635,10 +677,11 @@ function pageHTML(p) {
 function rowHTML(q) {
   const a = S.answers[q.no];
   const cur = PAGES[S.page] && PAGES[S.page].units.some(u => u.nos.includes(q.no));
-  const hide = (S.filter === 'checked' && !S.checked[q.no]) || (S.filter === 'open' && a);
-  return `<div class="row ${q.no && q.no % 5 === 0 && q.no !== TOTAL ? 'gap' : ''} ${cur ? 'cur' : ''}" data-row="${q.no}" ${hide ? 'hidden' : ''}>
-    <button class="rno" data-act="goto" data-q="${q.no}" aria-label="${q.no ? q.no + '번 문항으로 이동' : '예제 문항'}">${q.no ? pad2(q.no) : '예제'}${S.checked[q.no] ? '<span class="flag" aria-label="체크한 문항">✓</span>' : ''}</button>
-    ${[1, 2, 3, 4, 5].map(n => `<button class="bub ${a === n ? 'on' : ''}" data-act="pick" data-q="${q.no}" data-o="${n}" aria-pressed="${a === n}" aria-label="${q.no}번 문항 ${n}번 답">${n}</button>`).join('')}
+  const flt = q.no > 0 ? S.filter : pfilter;
+  const hide = (flt === 'checked' && !S.checked[q.no]) || (flt === 'open' && a);
+  return `<div class="row ${q.no > 0 && q.no % 5 === 0 && q.no !== TOTAL ? 'gap' : ''} ${cur ? 'cur' : ''} ${S.checked[q.no] ? 'chk' : ''}" data-row="${q.no}" ${hide ? 'hidden' : ''}>
+    <button class="rno" data-act="goto" data-q="${q.no}" aria-label="${q.no > 0 ? q.no + '번 문항으로 이동' : q.label + '로 이동'}">${q.no > 0 ? pad2(q.no) : q.label.replace(' ', '')}${S.checked[q.no] ? '<span class="flag" aria-label="체크한 문항">✓</span>' : ''}</button>
+    ${[1, 2, 3, 4, 5].map(n => `<button class="bub ${a === n ? 'on' : ''}" data-act="pick" data-q="${q.no}" data-o="${n}" aria-pressed="${a === n}" aria-label="${q.label || q.no + '번 문항'} ${n}번 답">${n}</button>`).join('')}
   </div>`;
 }
 const counts = () => ({ chk: QUESTIONS.filter(q => S.checked[q.no]).length, open: QUESTIONS.filter(q => !S.answers[q.no]).length });
@@ -668,6 +711,9 @@ function refreshCounts() {
   const a = document.getElementById('c-checked'), b = document.getElementById('c-open');
   if (a) a.textContent = c.chk;
   if (b) b.textContent = c.open;
+  const p = pcounts(), pa = document.getElementById('pc-checked'), pb = document.getElementById('pc-open');
+  if (pa) pa.textContent = p.chk;
+  if (pb) pb.textContent = p.open;
 }
 function updateQ(no) { const el = document.getElementById('q' + no); if (el) el.outerHTML = qHTML(Q(no)); }
 function updateRow(no) { const el = document.querySelector(`[data-row="${no}"]`); if (el) el.outerHTML = rowHTML(Q(no)); }
@@ -700,6 +746,20 @@ function doneView() {
 
 function modalRender() {
   const root = document.getElementById('modal-root');
+  if (pSubmitOpen && S.stage === 'guide') {
+    const c = pcounts(), open = PRACTICE.filter(q => !S.answers[q.no]).map(q => q.label);
+    root.innerHTML = `<div class="overlay" role="dialog" aria-modal="true" aria-labelledby="dlgT"><div class="dialog">
+      <h2 id="dlgT">답안 제출 (연습)</h2>
+      <div class="dbody">
+        <div class="stats"><div><b>${PRACTICE.length}</b>전체</div><div><b>${PRACTICE.length - c.open}</b>푼 문제</div><div class="${c.open ? 'bad' : ''}"><b>${c.open}</b>안 푼 문제</div></div>
+        ${open.length ? `<p class="warnline">안 푼 문항: ${open.join(', ')}</p>` : ''}
+        <p>실제 시험에서는 이 창에서 [제출]을 누르면 답안이 확정되고 고칠 수 없습니다. 지금은 연습이므로 제출되지 않습니다.</p>
+      </div>
+      <div class="dfoot"><button class="btn" data-act="psub-cancel">계속 풀기</button><button class="btn-primary" data-act="psub-cancel">제출 (연습)</button></div>
+    </div></div>`;
+    root.querySelector('[data-act="psub-cancel"]').focus();
+    return;
+  }
   if (!submitOpen || S.stage !== 'exam') { root.innerHTML = ''; return; }
   const open = QUESTIONS.filter(q => !S.answers[q.no]).map(q => q.no);
   const chk = QUESTIONS.filter(q => S.checked[q.no]).map(q => q.no);
@@ -805,9 +865,18 @@ document.addEventListener('click', e => {
     case 'gnext': S.guide = Math.min(STEPS.length - 1, S.guide + 1); S.guideMax = Math.max(S.guideMax, S.guide); save(); render(); break;
     case 'clicktest': clicks++; document.getElementById('clickN').textContent = clicks; break;
     case 'ttab': typeTab = +b.dataset.i; render(); break;
-    case 'start': [S.answers, S.struck, S.checked, S.memo].forEach(o => { delete o[0]; }); delete S.hl.s0; S.hlOn = false; memoOpen = null;
+    case 'start':
+      PNOS.forEach(n => { [S.answers, S.struck, S.checked, S.memo].forEach(o => { delete o[n]; }); delete S.hl['s' + n]; });
+      S.hlOn = false; S.filter = 'all'; memoOpen = null; ppage = 0; pfilter = 'all'; pSubmitOpen = false;
+      ctx.clearRect(0, 0, pad.width, pad.height); document.getElementById('calc').hidden = true; document.getElementById('draw').hidden = true;
       S.stage = 'exam'; S.startAt = Date.now(); S.endAt = S.startAt + EXAM.minutes * 60000; S.page = 0; S.warned = false; save(); render(); break;
-    case 'font': S.scale = +b.dataset.v; save(); render(); break;
+    case 'font': S.scale = +b.dataset.v; if (S.stage === 'guide') S.ptry.font = true; save(); render(); break;
+    case 'pcols': S.cols = +b.dataset.v; if (S.cols === 2) S.ptry.cols = true; ppage = 0; memoOpen = null; save(); render(); break;
+    case 'pprev': case 'pnext':
+      ppage = Math.max(0, Math.min(PRACTICE.length - 1, ppage + (act === 'pnext' ? 1 : -1))); S.ptry.nav = true; memoOpen = null; save(); render(); break;
+    case 'pfilter': pfilter = b.dataset.f; if (pfilter !== 'all') S.ptry.filter = true; save(); render(); break;
+    case 'psubmit': pSubmitOpen = true; markTry('submit'); modalRender(); break;
+    case 'psub-cancel': pSubmitOpen = false; modalRender(); if (b.textContent.includes('제출')) toast('연습이므로 제출되지 않았습니다.', 'info'); break;
     case 'cols': {
       const first = PAGES[S.page].units[0].nos[0];
       S.cols = +b.dataset.v; PAGES = buildPages(); S.page = Math.max(0, pageOf(first)); save(); render(); break;
@@ -819,7 +888,7 @@ document.addEventListener('click', e => {
       save(); updateQ(qn); refreshTry(); break;
     }
     case 'check': S.checked[qn] = !S.checked[qn]; save(); updateQ(qn); updateRow(qn); refreshCounts(); refreshTry(); break;
-    case 'pans': toast(`예제 정답: ${PRACTICE.answer}번 ${PRACTICE.options[PRACTICE.answer - 1]}`, 'info'); break;
+    case 'pans': toast(PRACTICE.map(p => `${p.label} 정답: ${p.answer}번 ${p.options[p.answer - 1]}`).join(' · '), 'info'); break;
     case 'memo': {
       memoOpen = memoOpen === qn ? null : qn; updateQ(qn);
       const ta = document.getElementById('memo-' + qn); if (ta) ta.focus();
@@ -828,6 +897,7 @@ document.addEventListener('click', e => {
     case 'prev': go(S.page - 1); break;
     case 'next': go(S.page + 1); break;
     case 'goto': {
+      if (qn <= 0) { if (S.cols === 1) ppage = -qn; S.ptry.nav = true; memoOpen = null; save(); render(); break; }
       const i = pageOf(qn); if (i !== S.page) go(i);
       const el = document.getElementById('q' + qn); if (el) el.scrollIntoView({ block: 'nearest' });
       break;
@@ -844,8 +914,8 @@ document.addEventListener('click', e => {
     case 'hlclear':
       document.querySelectorAll('.qarea .hl-zone, .practice .hl-zone').forEach(z => delete S.hl[z.dataset.hl]);
       save(); render(); break;
-    case 'calc': toggleFloat('calc'); break;
-    case 'draw': toggleFloat('draw'); break;
+    case 'calc': toggleFloat('calc'); markTry('calc'); break;
+    case 'draw': toggleFloat('draw'); markTry('draw'); break;
     case 'ck': calcKey(b.dataset.k); break;
     case 'pen': case 'eraser':
       penTool = act;
@@ -892,7 +962,7 @@ document.addEventListener('submit', e => {
   S.stage = 'guide'; S.guide = 0; save(); render();
 });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && submitOpen) { submitOpen = false; modalRender(); return; }
+  if (e.key === 'Escape' && (submitOpen || pSubmitOpen)) { submitOpen = false; pSubmitOpen = false; modalRender(); return; }
   if (S.stage !== 'exam' || submitOpen) return;
   if (e.target.closest && e.target.closest('input,textarea')) return;
   if (e.key === 'ArrowRight') go(S.page + 1);
